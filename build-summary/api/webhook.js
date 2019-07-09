@@ -1,8 +1,7 @@
 const { getStore } = require('../lib/mongo')
-const fetch = require('../lib/fetch')
 const nanoid = require('nanoid')
 const { createComment } = require('../lib/comment')
-const { upsertComment, createGithubClient } = require('../lib/github')
+const { upsertComment, createGithubClient, getPulls } = require('../lib/github')
 
 module.exports = async (req, res) => {
   const event = req.body
@@ -40,46 +39,25 @@ module.exports = async (req, res) => {
   }
 
   // get pulls associated to commit
-  const resPulls = await fetch(
-    `https://api.github.com/repos/${org}/${repo}/commits/${sha}/pulls`,
-    {
-      headers: {
-        authorization: `token ${githubToken}`,
-        accept: 'application/vnd.github.groot-preview+json'
-      }
-    }
-  )
-  const jsonPulls = await resPulls.json()
-
-  if (!resPulls.ok) {
-    console.log('fetching pulls failed', jsonPulls)
-    return res.status(500).send()
-  }
-
-  const [pull] = jsonPulls
+  const githubClient = createGithubClient(githubToken)
+  const [pull] = await getPulls(githubClient, { org, repo, sha })
 
   if (!pull) {
     console.log(`ignoring event: no PR associated with commit ${sha}`)
     return res.send()
   }
 
-  const diffPath = `${pull.base.ref}...${sha}`
-  const resDiff = await fetch(
-    `https://api.github.com/repos/${org}/${repo}/compare/${diffPath}`,
-    { headers: { authorization: `token ${githubToken}` } }
-  )
-  const diff = await resDiff.json()
-
-  if (!resDiff.ok) {
-    console.log('fetching diff failed', diff)
-    return res.status(500).send()
-  }
+  const diff = await getDiff(githubClient, {
+    org,
+    repo,
+    base: pull.base.ref,
+    head: sha
+  })
 
   const dir = 'pages'
   const url = `https://${payload.deployment.url}`
 
-  const routes = diff.files
-    .map(file => file.filename)
+  const routes = diff
     .filter(f => f.startsWith(dir))
     .map(f => f.slice(dir.length).replace(/\.[a-z]+$/, ''))
     .map(route => ({ route, routeUrl: `${url}${route}` }))
@@ -88,8 +66,6 @@ module.exports = async (req, res) => {
     console.log(`ignoring event: no changed page`)
     return res.send()
   }
-
-  console.log('routes modified', routes)
 
   console.log('creating screenshots...')
   const max = 6
@@ -102,7 +78,6 @@ module.exports = async (req, res) => {
     }
   })
   await store.insertMany(screenshots)
-  console.log('screenshots', screenshots)
 
   console.log('writing PR comment...')
   const comment = createComment({
@@ -111,7 +86,6 @@ module.exports = async (req, res) => {
     screenshots,
     rest: routes.slice(max)
   })
-  const githubClient = createGithubClient(githubToken)
   await upsertComment(githubClient, { org, repo, pull, body: comment })
 
   return res.send()

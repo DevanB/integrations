@@ -1,5 +1,5 @@
 const { withUiHook, htm } = require('@zeit/integration-utils')
-const { getUser } = require('../lib/github')
+const { createGithubClient, getUser } = require('../lib/github')
 const { getStore } = require('../lib/mongo')
 
 module.exports = withUiHook(async ({ payload }) => {
@@ -24,7 +24,8 @@ module.exports = withUiHook(async ({ payload }) => {
       </Page>`
   }
 
-  const user = await getUser(githubToken)
+  const githubClient = createGithubClient(githubToken)
+  const user = await getUser(githubClient)
 
   // if we have a github token, everything is fine
   return htm`<Page>

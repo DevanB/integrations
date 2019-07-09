@@ -27,17 +27,30 @@ const getToken = async code => {
   return token.access_token
 }
 
-const getUser = async token => {
-  const res = await fetch('https://api.github.com/user', {
-    headers: { authorization: `token ${token}` }
-  })
-
-  if (!res.ok) {
-    throw new Error('could not get user')
-  }
-
-  const user = await res.json()
+const getUser = async githubClient => {
+  const { data: user } = await githubClient.users.getAuthenticated()
   return user
+}
+
+const getPulls = async (githubClient, { org, repo, sha }) => {
+  const {
+    data: pulls
+  } = await githubClient.repos.listPullRequestsAssociatedWithCommit({
+    owner: org,
+    repo,
+    commit_sha: sha
+  })
+  return pulls
+}
+
+const getDiff = async (githubClient, { org, repo, base, head }) => {
+  const { data: diff } = await githubClient.repos.compareCommits({
+    owner: org,
+    repo,
+    base,
+    head
+  })
+  return diff.files.map(file => file.filename)
 }
 
 const upsertComment = async (githubClient, { org, repo, pull, body }) => {
@@ -68,4 +81,11 @@ const upsertComment = async (githubClient, { org, repo, pull, body }) => {
   }
 }
 
-module.exports = { createGithubClient, getUser, getToken, upsertComment }
+module.exports = {
+  createGithubClient,
+  getUser,
+  getToken,
+  upsertComment,
+  getPulls,
+  getDiff
+}
