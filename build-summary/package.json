@@ -1,0 +1,25 @@
+{
+  "name": "build-summary",
+  "dependencies": {
+    "@octokit/rest": "^16.28.2",
+    "@zeit/fetch": "5.1.0",
+    "@zeit/integration-utils": "0.6.2",
+    "chrome-aws-lambda": "1.18.1",
+    "cookie": "^0.4.0",
+    "mongodb": "^3.2.7",
+    "nanoid": "^2.0.3",
+    "node-fetch": "2.6.0",
+    "now-client": "^4.4.1",
+    "puppeteer-core": "1.18.1"
+  },
+  "scripts": {
+    "build": "mkdir dist && echo 'no build script to run' > dist/somefile.html"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": false
+  },
+  "devDependencies": {
+    "prettier": "^1.18.2"
+  }
+}
