@@ -40,15 +40,6 @@ module.exports = async (req, res) => {
     return res.send()
   }
 
-  // get pulls associated to commit
-  const githubClient = createGithubClient(githubToken)
-  const [pull] = await getPulls(githubClient, { org, repo, sha })
-
-  if (!pull) {
-    console.log(`ignoring event: no PR associated with commit ${sha}`)
-    return res.send()
-  }
-
   // get package.json content
   const zeitClient = new ZeitClient({ token, teamId })
   const deploymentFiles = await zeitClient.fetchAndThrow(
@@ -85,6 +76,15 @@ module.exports = async (req, res) => {
 
   // configure behaviour based on framework
   const dir = framework.dir
+
+  // get pull request associated to commit
+  const githubClient = createGithubClient(githubToken)
+  const [pull] = await getPulls(githubClient, { org, repo, sha })
+
+  if (!pull) {
+    console.log(`ignoring event: no PR associated with commit ${sha}`)
+    return res.send()
+  }
 
   const diff = await getDiff(githubClient, {
     org,
