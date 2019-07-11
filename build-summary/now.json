@@ -1,7 +1,4 @@
 {
-  "version": 2,
-  "name": "build-summary",
-  "alias": ["build-summary.now.sh"],
   "env": {
     "CLIENT_ID": "@build-summary-integration-client-id",
     "CLIENT_SECRET": "@build-summary-integration-client-secret",
@@ -10,12 +7,5 @@
     "MONGO_URI": "@build-summary-integration-mongo-uri",
     "INTEGRATION_HOMEPAGE": "https://zeit.co/integrations/build-summary",
     "INTEGRATION_URL": "https://build-summary.now.sh"
-  },
-  "builds": [
-    {
-      "src": "api/*.js",
-      "use": "@now/node",
-      "config": { "maxLambdaSize": "40mb" }
-    }
-  ]
+  }
 }
