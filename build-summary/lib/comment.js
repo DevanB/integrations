@@ -56,7 +56,7 @@ ${rest
   .join('\n')}`
     : ''
 }
-Commit ${sha} (<a href="${url}">${url}</a>).`
+Commit ${sha} (${url}).`
 }
 
 module.exports = { createComment }
