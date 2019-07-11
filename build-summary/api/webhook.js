@@ -2,13 +2,15 @@ const { getStore } = require('../lib/mongo')
 const nanoid = require('nanoid')
 const { createComment } = require('../lib/comment')
 const { upsertComment, createGithubClient, getPulls } = require('../lib/github')
+const { ZeitClient } = require('@zeit/integration-utils')
+const frameworks = require('../lib/frameworks')
 
 module.exports = async (req, res) => {
   const event = req.body
 
   console.log('received event:', event)
 
-  const { type, ownerId, payload } = event
+  const { type, ownerId, teamId, payload } = event
 
   if (type !== 'deployment-ready') {
     console.log(`ignoring event: type is ${event.type}`)
@@ -29,9 +31,9 @@ module.exports = async (req, res) => {
   } = payload.deployment.meta
   console.log('deployment ready', { ownerId, repo, org, sha })
 
-  // retrieve github token
+  // retrieve zeit token and github token
   const store = await getStore()
-  const { githubToken } = await store.findOne({ ownerId })
+  const { token, githubToken } = await store.findOne({ ownerId })
 
   if (!githubToken) {
     console.log(`ignoring event: ${ownerId} does not have a github token`)
@@ -47,6 +49,43 @@ module.exports = async (req, res) => {
     return res.send()
   }
 
+  // get package.json content
+  const zeitClient = new ZeitClient({ token, teamId })
+  const deploymentFiles = await zeitClient.fetchAndThrow(
+    `/v5/now/deployments/${payload.deploymentId}/files`
+  )
+  const packageJsonFile = deploymentFiles.find(
+    file => file.name === 'package.json' && file.type === 'file'
+  )
+  if (!packageJsonFile) {
+    console.log('ignoring event: no package.json found in the root folder')
+    return res.send()
+  }
+  const packageJsonContent = await zeitClient.fetchAndThrow(
+    `/v5/now/deployments/${payload.deploymentId}/files/${packageJson.uid}`
+  )
+
+  // parse package.json
+  let pkg = {}
+  try {
+    pkg = JSON.parse(packageJsonContent)
+  } catch (err) {
+    console.log('error: could not parse package.json')
+    console.error(err)
+    return res.send()
+  }
+
+  // look for a framework in deps
+  const pkgDeps = { ...pkg.dependencies, ...pkg.devDependencies }
+  const framework = frameworks.find(f => pkgDeps[f.dependency])
+  if (!framework) {
+    console.log('ignoring event: no framework dependency found in package.json')
+    return res.send()
+  }
+
+  // configure behaviour based on framework
+  const dir = framework.dir
+
   const diff = await getDiff(githubClient, {
     org,
     repo,
@@ -54,7 +93,6 @@ module.exports = async (req, res) => {
     head: sha
   })
 
-  const dir = 'pages'
   const url = `https://${payload.deployment.url}`
 
   const routes = diff
