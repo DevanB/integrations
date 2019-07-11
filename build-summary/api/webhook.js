@@ -43,7 +43,8 @@ module.exports = async (req, res) => {
   // get package.json content
   const zeitClient = new ZeitClient({ token, teamId })
   const deploymentFiles = await zeitClient.fetchAndThrow(
-    `/v5/now/deployments/${payload.deploymentId}/files`
+    `/v5/now/deployments/${payload.deploymentId}/files`,
+    {}
   )
   const packageJsonFile = deploymentFiles.find(
     file => file.name === 'package.json' && file.type === 'file'
@@ -53,7 +54,8 @@ module.exports = async (req, res) => {
     return res.send()
   }
   const packageJsonContent = await zeitClient.fetchAndThrow(
-    `/v5/now/deployments/${payload.deploymentId}/files/${packageJson.uid}`
+    `/v5/now/deployments/${payload.deploymentId}/files/${packageJson.uid}`,
+    {}
   )
 
   // parse package.json
