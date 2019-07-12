@@ -12,9 +12,6 @@
     "now-client": "^4.4.1",
     "puppeteer-core": "1.18.1"
   },
-  "scripts": {
-    "build": "mkdir dist && echo 'no build script to run' > dist/somefile.html"
-  },
   "prettier": {
     "singleQuote": true,
     "semi": false
