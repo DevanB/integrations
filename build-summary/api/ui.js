@@ -28,7 +28,14 @@ module.exports = withUiHook(async ({ payload }) => {
   const user = await getUser(githubClient)
 
   // if we have a github token, everything is fine
-  return htm`<Page>
-      <P>The integration is correctly setup. User: ${user.login}</P>
-    </Page>`
+  return htm`
+    <Page>
+      <P>Connected with GitHub user:
+        <Link target="_blank" href="https://github.com/${user.login}">
+          ${user.name || user.login}
+        </Link>
+      </P>
+      <Box><Img src=${user.avatar_url} width="64"/></Box>
+    </Page>
+  `
 })
