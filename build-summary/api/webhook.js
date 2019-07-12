@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
     return res.send()
   }
   const packageJsonContent = await zeitClient.fetchAndThrow(
-    `/v5/now/deployments/${payload.deploymentId}/files/${packageJson.uid}`,
+    `/v5/now/deployments/${payload.deploymentId}/files/${packageJsonFile.uid}`,
     {}
   )
 
