@@ -49,7 +49,7 @@ module.exports = async (req, res) => {
     const { ownerId, id: webhookId } = jsonWebhook
     await store.updateOne(
       { ownerId },
-      { ownerId, webhookId, token },
+      { $set: { ownerId, webhookId, token } },
       { upsert: true }
     )
   } catch (err) {
