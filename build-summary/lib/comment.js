@@ -5,7 +5,7 @@ const ellipsis = (txt, l = 25) => {
 const createComment = ({ sha, url, screenshots, rest = [] }) => {
   // group by screenshots by 3
   const grouped = screenshots.reduce((pv, cv, i) => {
-    const j = Math.floor(i / 3)
+    const j = Math.floor(i / 2)
     ;(pv[j] || (pv[j] = [])).push(cv)
     return pv
   }, [])
@@ -35,10 +35,8 @@ ${grouped.map(
           ({ routeUrl, route, screenshotUrl }) =>
             `<td align="center" valign="top">
               <a href="${routeUrl}">
-                <img src="${screenshotUrl}" alt="Screenshot of ${route}" width="200">
-              </a>
-              <br />
-              <h6><a href="${screenshotUrl}&fullPage=true">(view full size)</a></h6>
+                <img src="${screenshotUrl}" alt="Screenshot of ${route}" width="300">
+              </a><br /><sup><a href="${screenshotUrl}&fullPage=true">(view full size)</a></sup>
             </td>`
         )
         .join('')}
