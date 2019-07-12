@@ -24,7 +24,7 @@ const getOptions = async () => {
   }
 }
 
-const getScreenshot = async url => {
+const getScreenshot = async (url, { fullPage = false } = {}) => {
   if (!page) {
     const options = await getOptions()
     const browser = await puppeteer.launch(options)
@@ -33,7 +33,7 @@ const getScreenshot = async url => {
 
   await page.setViewport({ width: 1280, height: 800 })
   await page.goto(url)
-  const file = await page.screenshot({ fullPage: true })
+  const file = await page.screenshot({ fullPage })
   return file
 }
 

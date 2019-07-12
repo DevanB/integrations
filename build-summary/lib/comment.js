@@ -33,10 +33,12 @@ ${grouped.map(
       ${group
         .map(
           ({ routeUrl, route, screenshotUrl }) =>
-            `<td valign="top">
-              <a href="${routeUrl}" target=“_blank”>
+            `<td align="center" valign="top">
+              <a href="${routeUrl}">
                 <img src="${screenshotUrl}" alt="Screenshot of ${route}" width="200">
               </a>
+              <br />
+              <h6><a href="${screenshotUrl}&fullPage=true">(view full size)</a></h6>
             </td>`
         )
         .join('')}

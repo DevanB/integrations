@@ -3,6 +3,9 @@ const { getScreenshot } = require('../lib/screenshot')
 
 module.exports = async (req, res) => {
   const { screenshotId } = req.query
+  const fullPage = ['true', '1', 'yes', 'oui', 'ja'].includes(
+    req.query.fullPage
+  )
 
   const store = await getStore()
   const screenshot = await store.findOne({ screenshotId })
@@ -13,7 +16,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const file = await getScreenshot(screenshot.routeUrl)
+    const file = await getScreenshot(screenshot.routeUrl, { fullPage })
     res.setHeader('content-type', 'image/png')
     res.setHeader('cache-control', 'immutable,max-age=31536000')
     return res.status(200).send(file)
