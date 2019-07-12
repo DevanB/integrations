@@ -22,7 +22,7 @@ module.exports = withUiHook(async ({ payload }) => {
         <Box>
           <P>You need to connect to Github to enable this integration:</P>
           <Box marginTop="15px" justifyContent="center">
-            <Link href=${authorizeUrl}>
+            <Link href=${githubConnectUrl}>
               <Button>Connect to Github</Button>
             </Link>
           </Box>
