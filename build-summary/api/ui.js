@@ -19,16 +19,23 @@ module.exports = withUiHook(async ({ payload }) => {
       })
 
     return htm`<Page>
-        <P>You need to be connected to Github to use this integration:</P>
-        <P><Link href=${githubConnectUrl}>Connect with Github</Link></P>
+        <Box>
+          <P>You need to connect to Github to enable this integration:</P>
+          <Box marginTop="15px" justifyContent="center">
+            <Link href=${authorizeUrl}>
+              <Button>Connect to Github</Button>
+            </Link>
+          </Box>
+        </Box>
       </Page>`
   }
 
+  // if we have a github token, everything is fine
   const githubClient = createGithubClient(githubToken)
   const user = await getUser(githubClient)
 
   const card = ({ avatar, login, service }) => htm`
-    <Box display="flex" flexDirection="column" backgroundColor="#fff" border="1px solid #eaeaea" borderRadius="5px" overflow="hidden">
+    <Box display="flex" flexDirection="column" backgroundColor="#fff" border="1px solid #eaeaea" borderRadius="5px" overflow="hidden" maxWidth="400px">
       <Box display="flex" padding="15px" flexDirection="column">
         <Box display="flex" alignItems="center">
           <Box display="flex" borderRadius="50%" height="50px" width="50px" overflow="hidden">
@@ -43,7 +50,6 @@ module.exports = withUiHook(async ({ payload }) => {
     </Box>
   `
 
-  // if we have a github token, everything is fine
   return htm`
     <Page>
       <Box marginBottom="10px" fontSize="18px" fontWeight="bold">
