@@ -27,15 +27,29 @@ module.exports = withUiHook(async ({ payload }) => {
   const githubClient = createGithubClient(githubToken)
   const user = await getUser(githubClient)
 
+  const card = ({ avatar, login, service }) => htm`
+    <Box display="flex" flexDirection="column" backgroundColor="#fff" border="1px solid #eaeaea" borderRadius="5px" overflow="hidden">
+      <Box display="flex" padding="15px" flexDirection="column">
+        <Box display="flex" alignItems="center">
+          <Box display="flex" borderRadius="50%" height="50px" width="50px" overflow="hidden">
+            <Img src=${avatar} width="100%" />
+          </Box>
+          <Box marginLeft="20px">
+            <Box display="flex" fontSize="18px" fontWeight="bold">${login}</Box>
+            <Box display="flex" color="#666">${service}</Box>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  `
+
   // if we have a github token, everything is fine
   return htm`
     <Page>
-      <P>Connected with GitHub user:
-        <Link target="_blank" href=${'https://github.com/' + user.login}>
-          ${user.login}
-        </Link>
-      </P>
-      <Box><Img src=${user.avatar_url} width="64"/></Box>
+      <Box marginBottom="10px" fontSize="18px" fontWeight="bold">
+        Connected to the following account:
+      </Box>
+      ${card({ avatar: user.avatar_url, login: user.login, service: 'Github' })}
     </Page>
   `
 })
