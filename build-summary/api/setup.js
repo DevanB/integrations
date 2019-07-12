@@ -46,11 +46,12 @@ module.exports = async (req, res) => {
 
   try {
     const store = await getStore()
-    await store.insertOne({
-      ownerId: jsonWebhook.ownerId,
-      webhookId: jsonWebhook.id,
-      token
-    })
+    const { ownerId, id: webhookId } = jsonWebhook
+    await store.updateOne(
+      { ownerId },
+      { ownerId, webhookId, token },
+      { upsert: true }
+    )
   } catch (err) {
     console.error(err)
     return res.status(500).json({

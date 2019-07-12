@@ -13,19 +13,15 @@ const frameworks = require('../lib/frameworks')
 module.exports = async (req, res) => {
   const event = req.body
 
-  console.log('received event:', event)
-
   const { type, ownerId, teamId, payload } = event
 
   if (type !== 'deployment-ready') {
-    console.log(`ignoring event: type is ${event.type}`)
     return res.send()
   }
 
   const isGithub = !!event.payload.deployment.meta.githubDeployment
 
   if (!isGithub) {
-    console.log(`ignoring event: not a github deployment`)
     return res.send()
   }
 
@@ -40,7 +36,7 @@ module.exports = async (req, res) => {
   const store = await getStore()
   const { token, githubToken } = await store.findOne({ ownerId })
 
-  if (!githubToken) {
+  if (!token || !githubToken) {
     console.log(`ignoring event: ${ownerId} does not have a github token`)
     return res.send()
   }
