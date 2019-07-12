@@ -46,7 +46,10 @@ module.exports = async (req, res) => {
     `/v5/now/deployments/${payload.deploymentId}/files`,
     {}
   )
-  const packageJsonFile = deploymentFiles.find(
+  const srcDir = deploymentFiles.find(
+    file => file.name === 'src' && file.type === 'directory'
+  )
+  const packageJsonFile = (srcDir ? srcDir.children : []).find(
     file => file.name === 'package.json' && file.type === 'file'
   )
   if (!packageJsonFile) {
