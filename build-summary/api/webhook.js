@@ -1,7 +1,12 @@
 const { getStore } = require('../lib/mongo')
 const nanoid = require('nanoid')
 const { createComment } = require('../lib/comment')
-const { upsertComment, createGithubClient, getPulls } = require('../lib/github')
+const {
+  upsertComment,
+  createGithubClient,
+  getPulls,
+  getDiff
+} = require('../lib/github')
 const { ZeitClient } = require('@zeit/integration-utils')
 const frameworks = require('../lib/frameworks')
 
@@ -56,10 +61,15 @@ module.exports = async (req, res) => {
     console.log('ignoring event: no package.json found in the root folder')
     return res.send()
   }
-  const packageJsonContent = await zeitClient.fetchAndThrow(
+  const packageJsonRes = await zeitClient.fetch(
     `/v5/now/deployments/${payload.deploymentId}/files/${packageJsonFile.uid}`,
     {}
   )
+  if (!packageJsonRes.ok) {
+    console.log('error: could not retrieve package.json content')
+    return res.send()
+  }
+  const packageJsonContent = await packageJsonRes.text()
 
   // parse package.json
   let pkg = {}
