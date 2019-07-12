@@ -31,8 +31,8 @@ module.exports = withUiHook(async ({ payload }) => {
   return htm`
     <Page>
       <P>Connected with GitHub user:
-        <Link target="_blank" href="https://github.com/${user.login}">
-          ${user.name || user.login}
+        <Link target="_blank" href=${'https://github.com/' + user.login}>
+          ${user.login}
         </Link>
       </P>
       <Box><Img src=${user.avatar_url} width="64"/></Box>
