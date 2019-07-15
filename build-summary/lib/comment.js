@@ -40,7 +40,7 @@ ${grouped.map(
 )}
 ${
   rest.length > 0
-    ? `And ${rest.length} other routes:
+    ? `And ${rest.length} other route${rest.length === 1 ? '' : 's'}:
 ${rest
   .map(
     ({ route, routeLink }) => `- [**${escapeLinkTitle(route)}**](${routeLink})`
