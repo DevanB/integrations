@@ -115,8 +115,8 @@ module.exports = async (req, res) => {
   const url = `https://${payload.deployment.url}`
 
   const routes = diff
-    .filter(f => f.startsWith(dir))
-    .map(f => f.slice(dir.length).replace(/\.[a-z]+$/, ''))
+    .map(framework.routes || (x => x))
+    .filter(Boolean)
     .map(route => ({ route, routeUrl: `${url}${route}` }))
 
   if (routes.length === 0) {
