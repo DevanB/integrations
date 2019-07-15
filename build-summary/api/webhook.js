@@ -121,14 +121,12 @@ module.exports = async (req, res) => {
 
   // if there's an alias, use alias url instead
   try {
-    const {
-      aliases: [alias]
-    } = await zeitClient.fetchAndThrow(
+    const { aliases } = await zeitClient.fetchAndThrow(
       `/v2/now/deployments/${payload.deploymentId}/aliases`,
       {}
     )
-    if (alias) {
-      aliasUrl = `https://${alias}`
+    if (aliases.length > 0) {
+      aliasUrl = `https://${aliases[0].alias}`
     }
   } catch (err) {
     console.warn('warning, error while fetching alias', err)
