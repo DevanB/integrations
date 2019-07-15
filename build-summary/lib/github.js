@@ -32,11 +32,11 @@ const getUser = async githubClient => {
   return user
 }
 
-const getPulls = async (githubClient, { org, repo, branch }) => {
+const getPulls = async (githubClient, { org, repo, head }) => {
   const { data: pulls } = await githubClient.pulls.list({
     owner: org,
     repo,
-    head: `${org}:${branch}`,
+    head,
     state: 'open'
   })
   return pulls
