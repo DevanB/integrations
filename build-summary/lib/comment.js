@@ -2,6 +2,11 @@ const ellipsis = (txt, l = 25) => {
   return txt.length > l ? `…${txt.slice(-22)}` : txt
 }
 
+const escapeLinkTitle = txt => {
+  // escape [ and ] with \
+  return txt.replace(/\[/g, '\\[').replace(/\]/g, '\\]')
+}
+
 const createComment = ({ commitSha, url, screenshots, rest = [] }) => {
   // group by screenshots by 3
   const grouped = screenshots.reduce((pv, cv, i) => {
@@ -15,7 +20,10 @@ ${grouped.map(
   group => `
 
 |${group
-    .map(({ routeLink, route }) => ` [${ellipsis(route)}](${routeLink}) |`)
+    .map(
+      ({ routeLink, route }) =>
+        ` [${escapeLinkTitle(ellipsis(route))}](${routeLink}) |`
+    )
     .join('')}
 |${':-:|'.repeat(group.length)}
 |${group
@@ -34,10 +42,13 @@ ${
   rest.length > 0
     ? `And ${rest.length} other routes:
 ${rest
-  .map(({ route, routeLink }) => `- [**${route}**](${routeLink})`)
+  .map(
+    ({ route, routeLink }) => `- [**${escapeLinkTitle(route)}**](${routeLink})`
+  )
   .join('\n')}`
     : ''
 }
+
 Commit ${commitSha} (${url}).`
 }
 
