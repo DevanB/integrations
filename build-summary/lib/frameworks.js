@@ -1,5 +1,5 @@
 const fsRoutes = dir => path => {
-  if (path.startsWith(dir)) {
+  if (!path.startsWith(dir)) {
     return false
   }
 
