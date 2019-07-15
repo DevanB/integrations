@@ -17,13 +17,14 @@ ${grouped.map(
 |${group
     .map(({ routeLink, route }) => ` [${ellipsis(route)}](${routeLink}) |`)
     .join('')}
-|${' |'.repeat(group.length)}
+|${':-:|'.repeat(group.length)}
 |${group
     .map(
       ({ routeLink, route, screenshotUrl }) =>
         `<a href="${routeLink}"><img src="${screenshotUrl}" alt="Screenshot of ${route}" width="300"></a>` +
-        `<center><sup><a href="${screenshotUrl}&fullPage=true">(view full size)</a></center>` +
-        ` |`
+        '<br />' +
+        `<sup><a href="${screenshotUrl}&fullPage=true">(view full size)</a>` +
+        ' |'
     )
     .join('')}
 
