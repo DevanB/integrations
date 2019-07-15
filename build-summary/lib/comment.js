@@ -14,18 +14,18 @@ const createComment = ({ commitSha, url, screenshots, rest = [] }) => {
 ${grouped.map(
   group => `
 
-| ${group
-    .map(({ routeLink, route }) => `[${ellipsis(route)}](${routeLink})`)
-    .join(' | ')} |
-
-| ${group
+|${group
+    .map(({ routeLink, route }) => ` [${ellipsis(route)}](${routeLink}) |`)
+    .join('')}
+|${' |'.repeat(group.length)}
+|${group
     .map(
-      ({ routeLink, route }) =>
+      ({ routeLink, route, screenshotUrl }) =>
         `<a href="${routeLink}"><img src="${screenshotUrl}" alt="Screenshot of ${route}" width="300"></a>` +
-        `<center><sup><a href="${screenshotUrl}&fullPage=true">(view full size)</a></center>`
+        `<center><sup><a href="${screenshotUrl}&fullPage=true">(view full size)</a></center>` +
+        ` |`
     )
-    .join(' | ')} |
-
+    .join('')}
 
 `
 )}
