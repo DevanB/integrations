@@ -11,7 +11,12 @@ const fsRoutes = dir => path => {
 module.exports = [
   {
     dependency: 'next',
-    routes: fsRoutes('pages')
+    routes: path => {
+      const route = fsRoutes('pages')(path)
+      if (route === '_app' || route === '_document') {
+        return false
+      }
+    }
   },
   {
     dependency: 'gatsby',
