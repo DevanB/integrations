@@ -123,7 +123,7 @@ module.exports = async (req, res) => {
   try {
     const {
       aliases: [alias]
-    } = await zeitClient.fetch(
+    } = await zeitClient.fetchAndThrow(
       `/v2/now/deployments/${payload.deploymentId}/aliases`,
       {}
     )
