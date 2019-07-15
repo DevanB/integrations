@@ -34,10 +34,7 @@ ${
   rest.length > 0
     ? `And ${rest.length} other routes:
 ${rest
-  .map(
-    ({ route, routeLink }) =>
-      `- <a href="${routeLink}"><code><b>${route}</b></code></a>`
-  )
+  .map(({ route, routeLink }) => `- [**${route}**](${routeLink})`)
   .join('\n')}`
     : ''
 }
