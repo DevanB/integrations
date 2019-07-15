@@ -30,11 +30,11 @@ module.exports = async (req, res) => {
   const {
     githubOrg: org,
     githubRepo: repo,
-    githubCommitSha: sha,
+    githubCommitSha: commitSha,
     githubCommitOrg: commitOrg,
     githubCommitRef: commitRef
   } = payload.deployment.meta
-  console.log('deployment ready', { ownerId, repo, org, sha })
+  console.log('deployment ready', { ownerId, repo, org, commitSha })
 
   // retrieve zeit token and github token
   const store = await getStore()
@@ -101,7 +101,7 @@ module.exports = async (req, res) => {
   })
 
   if (!pull) {
-    console.log(`ignoring event: no PR associated with commit ${sha}`)
+    console.log(`ignoring event: no PR associated with commit ${commitSha}`)
     return res.send()
   }
 
@@ -109,7 +109,7 @@ module.exports = async (req, res) => {
     org,
     repo,
     base: pull.base.ref,
-    head: `${commitOrg}:${sha}`
+    head: `${commitOrg}:${commitSha}`
   })
 
   const url = `https://${payload.deployment.url}`
@@ -138,7 +138,7 @@ module.exports = async (req, res) => {
 
   console.log('writing PR comment...')
   const comment = createComment({
-    sha,
+    commitSha,
     url,
     screenshots,
     rest: routes.slice(max)

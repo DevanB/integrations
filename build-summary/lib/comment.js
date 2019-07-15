@@ -2,7 +2,7 @@ const ellipsis = (txt, l = 25) => {
   return txt.length > l ? `…${txt.slice(-22)}` : txt
 }
 
-const createComment = ({ sha, url, screenshots, rest = [] }) => {
+const createComment = ({ commitSha, url, screenshots, rest = [] }) => {
   // group by screenshots by 3
   const grouped = screenshots.reduce((pv, cv, i) => {
     const j = Math.floor(i / 2)
@@ -56,7 +56,7 @@ ${rest
   .join('\n')}`
     : ''
 }
-Commit ${sha} (${url}).`
+Commit ${commitSha} (${url}).`
 }
 
 module.exports = { createComment }
