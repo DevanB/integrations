@@ -16,6 +16,7 @@ module.exports = [
       if (route === '_app' || route === '_document') {
         return false
       }
+      return route
     }
   },
   {
