@@ -25,10 +25,13 @@ module.exports = async (req, res) => {
     return res.send()
   }
 
+  console.log(event)
+
   const {
     githubCommitOrg: org,
     githubCommitRepo: repo,
-    githubCommitSha: sha
+    githubCommitSha: sha,
+    githubCommitRef: branch
   } = payload.deployment.meta
   console.log('deployment ready', { ownerId, repo, org, sha })
 
@@ -90,7 +93,7 @@ module.exports = async (req, res) => {
 
   // get pull request associated to commit
   const githubClient = createGithubClient(githubToken)
-  const [pull] = await getPulls(githubClient, { org, repo, sha })
+  const [pull] = await getPulls(githubClient, { org, repo, branch })
 
   if (!pull) {
     console.log(`ignoring event: no PR associated with commit ${sha}`)
