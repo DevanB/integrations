@@ -28,10 +28,10 @@ module.exports = async (req, res) => {
   console.log(JSON.stringify(event, null, 2))
 
   const {
-    githubCommitOrg: org,
+    githubOrg: org,
     githubRepo: repo,
     githubCommitSha: sha,
-    githubCommitRepo: commitRepo,
+    githubCommitOrg: commitOrg,
     githubCommitRef: commitRef
   } = payload.deployment.meta
   console.log('deployment ready', { ownerId, repo, org, sha })
@@ -97,7 +97,7 @@ module.exports = async (req, res) => {
   const [pull] = await getPulls(githubClient, {
     org,
     repo,
-    head: `${commitRepo}:${commitRef}`
+    head: `${commitOrg}:${commitRef}`
   })
 
   if (!pull) {
@@ -109,7 +109,7 @@ module.exports = async (req, res) => {
     org,
     repo,
     base: pull.base.ref,
-    head: `${commitRepo}:${sha}`
+    head: `${commitOrg}:${sha}`
   })
 
   const url = `https://${payload.deployment.url}`
