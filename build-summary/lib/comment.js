@@ -18,9 +18,9 @@ ${grouped.map(
     <tr>
       ${group
         .map(
-          ({ routeUrl, route }) =>
+          ({ routeLink, route }) =>
             `<th>
-              <a href="${routeUrl}">
+              <a href="${routeLink}">
                 <code>${ellipsis(route)}</code>
               </a>
             </th>`
@@ -32,9 +32,9 @@ ${grouped.map(
     <tr>
       ${group
         .map(
-          ({ routeUrl, route, screenshotUrl }) =>
+          ({ routeLink, route, screenshotUrl }) =>
             `<td align="center" valign="top">
-              <a href="${routeUrl}">
+              <a href="${routeLink}">
                 <img src="${screenshotUrl}" alt="Screenshot of ${route}" width="300">
               </a><br /><sup><a href="${screenshotUrl}&fullPage=true">(view full size)</a></sup>
             </td>`
@@ -50,8 +50,8 @@ ${
     ? `And ${rest.length} other routes:
 ${rest
   .map(
-    ({ route, routeUrl }) =>
-      `- <a href="${routeUrl}"><code><b>${route}</b></code></a>`
+    ({ route, routeLink }) =>
+      `- <a href="${routeLink}"><code><b>${route}</b></code></a>`
   )
   .join('\n')}`
     : ''

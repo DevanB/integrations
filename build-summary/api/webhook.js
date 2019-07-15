@@ -89,9 +89,6 @@ module.exports = async (req, res) => {
     return res.send()
   }
 
-  // configure behaviour based on framework
-  const dir = framework.dir
-
   // get pull request associated to commit
   const githubClient = createGithubClient(githubToken)
   const [pull] = await getPulls(githubClient, {
@@ -112,16 +109,29 @@ module.exports = async (req, res) => {
     head: `${commitOrg}:${commitSha}`
   })
 
-  const url = `https://${payload.deployment.url}`
-
-  const routes = diff
-    .map(framework.routes || (x => x))
-    .filter(Boolean)
-    .map(route => ({ route, routeUrl: `${url}${route}` }))
+  const routes = diff.map(framework.routes || (x => x)).filter(Boolean)
 
   if (routes.length === 0) {
     console.log(`ignoring event: no changed page`)
     return res.send()
+  }
+
+  let deploymentUrl = `https://${payload.deployment.url}`
+  let aliasUrl = null
+
+  // if there's an alias, use alias url instead
+  try {
+    const {
+      aliases: [alias]
+    } = await zeitClient.fetch(
+      `/v2/now/deployments/${payload.deploymentId}/aliases`,
+      {}
+    )
+    if (alias) {
+      aliasUrl = `https://${alias}`
+    }
+  } catch (err) {
+    console.warn('warning, error while fetching alias', err)
   }
 
   console.log('creating screenshots...')
@@ -131,17 +141,24 @@ module.exports = async (req, res) => {
     return {
       screenshotId,
       screenshotUrl: `${process.env.INTEGRATION_URL}/api/screenshot?screenshotId=${screenshotId}`,
-      ...route
+      route,
+      routeUrl: `${deploymentUrl}${route}`,
+      routeLink: `${aliasUrl || deploymentUrl}${route}`
     }
   })
   await store.insertMany(screenshots)
 
+  const rest = routes.slice(max).map(route => ({
+    route,
+    routeLink: `${aliasUrl || deploymentUrl}${route}`
+  }))
+
   console.log('writing PR comment...')
   const comment = createComment({
     commitSha,
-    url,
+    url: aliasUrl || deploymentUrl,
     screenshots,
-    rest: routes.slice(max)
+    rest
   })
   await upsertComment(githubClient, { org, repo, pull, body: comment })
 
