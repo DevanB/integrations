@@ -6,6 +6,7 @@ const fsRoutes = dir => path => {
   return path
     .slice(dir.length) // /src/pages/ -> /
     .replace(/\.[a-z]+$/, '') // strip .js, .ts, ...
+    .replace(/index$/, '') // strip index
 }
 
 module.exports = [
