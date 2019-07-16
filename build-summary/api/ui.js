@@ -40,17 +40,22 @@ module.exports = withUiHook(async ({ payload }) => {
       </Link>
     </Box>`
 
-  const card = ({ avatar, username, provider }) => htm`
+  const card = ({ provider, user }) => htm`
     <Box display="flex" flexDirection="column" backgroundColor="#fff" border="1px solid #eaeaea" borderRadius="5px" overflow="hidden" maxWidth="400px" marginTop="15px">
       <Box display="flex" padding="15px" flexDirection="column">
         <Box display="flex" alignItems="center">
           <Box display="flex" borderRadius="50%" height="50px" width="50px" overflow="hidden">
-            <Img src=${avatar} width="100%" />
+            <Img src=${user.avatar} width="100%" />
           </Box>
           <Box marginLeft="20px">
-            <Box display="flex" fontSize="18px" fontWeight="bold">${username}</Box>
+            <Box display="flex" fontSize="18px" fontWeight="bold">${user.username}</Box>
             <Box display="flex" color="#666">${provider}</Box>
           </Box>
+        </Box>
+      </Box>
+      <Box display="flex" backgroundColor="#fafbfc" justifyContent="space-between" width="100%" padding="10px" borderTop="1px solid #eaeaea">
+        <Box display="flex">
+          <Link href="${user.settings}" target="_blank">Settings</Link>
         </Box>
       </Box>
     </Box>`
@@ -62,14 +67,8 @@ module.exports = withUiHook(async ({ payload }) => {
         : htm`<P>You need to connect to Github or Gitlab to enable this integration:</P>`
     }
 
-    ${connected.map(c =>
-      card({
-        avatar: c.user.avatar,
-        username: c.user.username,
-        provider: c.provider
-      })
-    )}
+    ${connected.map(card)}
 
-    ${disconnected.map(c => connectUi({ provider: c.provider }))}
+    ${disconnected.map(connectUi)}
   </Page>`
 })
