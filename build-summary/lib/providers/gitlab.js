@@ -15,7 +15,7 @@ module.exports = {
     )
   },
   async getToken(code) {
-    const res = await fetch('http://gitlab.com/oauth/token', {
+    const res = await fetch('https://gitlab.com/oauth/token', {
       method: 'POST',
       headers: {
         accept: 'application/json',
@@ -31,6 +31,8 @@ module.exports = {
     })
 
     if (!res.ok) {
+      const err = await res.json()
+      console.log(err)
       throw new Error()
     }
 
