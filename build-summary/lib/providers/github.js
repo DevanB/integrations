@@ -40,27 +40,23 @@ module.exports = {
     const { data: user } = await client.users.getAuthenticated()
     return user
   },
-  async getPull(client, { org, repo, head }) {
+  async getPull(client, { meta }) {
     const {
       data: [pull]
     } = await client.pulls.list({
-      owner: org,
-      repo,
-      head,
+      owner: meta.githubOrg,
+      repo: meta.githubRepo,
+      head: `${meta.githubCommitOrg}:${meta.githubCommitRef}`,
       state: 'open'
     })
-    if (!pull) return null
-    return {
-      id: pull.number,
-      base: pull.base.ref
-    }
+    return pull
   },
-  async getDiff(client, { org, repo, base, head }) {
+  async getDiff(client, { meta, pull }) {
     const { data: comparison } = await client.repos.compareCommits({
-      owner: org,
-      repo,
-      base,
-      head
+      owner: meta.githubOrg,
+      repo: meta.githubRepo,
+      base: pull.base.ref,
+      head: `${meta.githubCommitOrg}:${meta.githubCommitSha}`
     })
 
     const deleted = []
@@ -76,11 +72,11 @@ module.exports = {
 
     return { deleted, modified }
   },
-  async upsertComment(client, { org, repo, pullId, body }) {
+  async upsertComment(client, { meta, pull, body }) {
     const { data: comments } = await client.issues.listComments({
-      owner: org,
-      repo,
-      issue_number: pullId
+      owner: meta.githubOrg,
+      repo: meta.githubRepo,
+      issue_number: pull.number
     })
 
     const comment = comments.find(comment =>
@@ -89,18 +85,21 @@ module.exports = {
 
     if (!comment) {
       await client.issues.createComment({
-        owner: org,
-        repo,
-        issue_number: pullId,
+        owner: meta.githubOrg,
+        repo: meta.githubRepo,
+        issue_number: pull.number,
         body
       })
     } else {
       await client.issues.updateComment({
-        owner: org,
-        repo,
-        comment_id: comment.id,
+        owner: meta.githubOrg,
+        repo: meta.githubRepo,
+        comment_id: comment.number,
         body
       })
     }
+  },
+  getCommitShaFromMeta(meta) {
+    return meta.githubCommitSha
   }
 }

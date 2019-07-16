@@ -10,9 +10,7 @@ module.exports = async (req, res) => {
   const { type, ownerId, teamId, payload } = event
 
   // not a deployment-ready event
-  if (type !== 'deployment-ready') {
-    return res.send()
-  }
+  if (type !== 'deployment-ready') return res.send()
 
   const { meta } = payload.deployment
 
@@ -24,22 +22,11 @@ module.exports = async (req, res) => {
   }
 
   // not a "git" deployment
-  if (!provider) {
-    return res.send()
-  }
+  if (!provider) return res.send()
 
   console.log(JSON.stringify(event, null, 2))
 
-  const {
-    [provider + 'Org']: org,
-    [provider + 'Repo']: repo,
-    [provider + 'CommitSha']: commitSha,
-    [provider + 'CommitOrg']: commitOrg,
-    [provider + 'CommitRef']: commitRef
-  } = meta
-  console.log('deployment ready', { ownerId, repo, org, commitSha })
-
-  // retrieve zeit token and github token
+  // retrieve zeit token and provider token from store
   const store = await getStore()
   const { token, [provider + 'Token']: providerToken } = await store.findOne({
     ownerId
@@ -97,23 +84,14 @@ module.exports = async (req, res) => {
   // get pull request associated to commit
   const strategy = getStrategy(provider)
   const providerClient = strategy.createClient(providerToken)
-  const pull = await strategy.getPull(providerClient, {
-    org,
-    repo,
-    head: `${commitOrg}:${commitRef}`
-  })
+  const pull = await strategy.getPull(providerClient, { meta })
 
   if (!pull) {
-    console.log(`ignoring event: no PR associated with commit ${commitSha}`)
+    console.log(`ignoring event: no PR associated with commit`)
     return res.send()
   }
 
-  const diff = await strategy.getDiff(providerClient, {
-    org,
-    repo,
-    base: pull.base,
-    head: `${commitOrg}:${commitSha}`
-  })
+  const diff = await strategy.getDiff(providerClient, { meta, pull })
 
   const routes = diff.modified.map(framework.routes).filter(Boolean)
   const deletedRoutes = diff.deleted.map(framework.routes).filter(Boolean)
@@ -162,18 +140,13 @@ module.exports = async (req, res) => {
 
   console.log('writing PR comment...')
   const comment = createComment({
-    commitSha,
+    commitSha: strategy.getCommitShaFromMeta(meta),
     url: aliasUrl || deploymentUrl,
     screenshots,
     otherRoutes,
     deletedRoutes
   })
-  await strategy.upsertComment(providerClient, {
-    org,
-    repo,
-    pullId: pull.id,
-    body: comment
-  })
+  await strategy.upsertComment(providerClient, { meta, pull, body: comment })
 
   return res.send()
 }

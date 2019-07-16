@@ -47,25 +47,24 @@ module.exports = {
     const user = await client.Users.current()
     return user
   },
-  async getPull(client, { repo, head }) {
+  async getPull(client, { meta }) {
     const [pull] = await client.MergeRequests.all({
-      projectId: repo,
+      projectId: meta.gitlabProjectId,
       state: 'opened',
-      source_branch: head
+      source_branch: meta.gitlabCommitRef,
+      scope: 'all'
     })
-    if (!pull) return null
-    return {
-      id: pull.iid,
-      base: pull.target_branch
-    }
+    return pull
   },
-  async getDiff(client, { repo, base, head }) {
-    const projectId = repo
-    const from = base
-    const to = head
-    const comparison = await client.Repositories.compare(projectId, from, to, {
-      straight: false
-    })
+  async getDiff(client, { meta, pull }) {
+    const from = pull.target_branch
+    const to = meta.gitlabCommitSha
+    const comparison = await client.Repositories.compare(
+      meta.gitlabProjectId,
+      from,
+      to,
+      { straight: false }
+    )
 
     const deleted = []
     const modified = []
@@ -80,17 +79,32 @@ module.exports = {
 
     return { deleted, modified }
   },
-  async upsertComment(client, { repo, pullId, body }) {
-    const comments = await client.MergeRequestNotes.all(repo, pullId)
+  async upsertComment(client, { meta, pull, body }) {
+    const comments = await client.MergeRequestNotes.all(
+      meta.gitlabProjectId,
+      pull.iid
+    )
 
     const comment = comments.find(comment =>
       comment.body.startsWith('#### 📝Changed routes:')
     )
 
     if (!comment) {
-      await client.MergeRequestNotes.create(repo, pullId, body)
+      await client.MergeRequestNotes.create(
+        meta.gitlabProjectId,
+        pull.iid,
+        body
+      )
     } else {
-      await client.MergeRequestNotes.edit(repo, pullId, comment.id, body)
+      await client.MergeRequestNotes.edit(
+        meta.gitlabProjectId,
+        pull.iid,
+        comment.id,
+        body
+      )
     }
+  },
+  getCommitShaFromMeta(meta) {
+    return meta.gitlabCommitSha
   }
 }
