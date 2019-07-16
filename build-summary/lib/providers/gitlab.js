@@ -51,7 +51,8 @@ module.exports = {
     return {
       id: user.id,
       username: user.username,
-      avatar: user.avatar_url
+      avatar: user.avatar_url,
+      settings: 'https://gitlab.com/profile/applications'
     }
   },
   async getPull(client, { meta }) {

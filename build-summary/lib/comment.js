@@ -29,7 +29,7 @@ ${grouped
 |${group
       .map(
         ({ routeLink, route }) =>
-          ` [${escapeLinkTitle(ellipsis(route))}](${routeLink}) |`
+          ` [**${escapeLinkTitle(ellipsis(route))}**](${routeLink}) |`
       )
       .join('')}
 |${':-:|'.repeat(group.length)}

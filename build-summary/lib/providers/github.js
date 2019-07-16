@@ -42,7 +42,8 @@ module.exports = {
     return {
       id: user.id,
       username: user.login,
-      avatar: user.avatar_url
+      avatar: user.avatar_url,
+      settings: `https://github.com/settings/connections/applications/${process.env.GITHUB_CLIENT_ID}`
     }
   },
   async getPull(client, { meta }) {
