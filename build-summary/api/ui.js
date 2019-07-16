@@ -41,7 +41,7 @@ module.exports = withUiHook(async ({ payload }) => {
     </Box>`
 
   const card = ({ avatar, username, provider }) => htm`
-    <Box display="flex" flexDirection="column" backgroundColor="#fff" border="1px solid #eaeaea" borderRadius="5px" overflow="hidden" maxWidth="400px">
+    <Box display="flex" flexDirection="column" backgroundColor="#fff" border="1px solid #eaeaea" borderRadius="5px" overflow="hidden" maxWidth="400px" marginTop="15px">
       <Box display="flex" padding="15px" flexDirection="column">
         <Box display="flex" alignItems="center">
           <Box display="flex" borderRadius="50%" height="50px" width="50px" overflow="hidden">
@@ -64,8 +64,8 @@ module.exports = withUiHook(async ({ payload }) => {
 
     ${connected.map(c =>
       card({
-        avatar: c.user.avatar_url,
-        username: c.user.login,
+        avatar: c.user.avatar,
+        username: c.user.username,
         provider: c.provider
       })
     )}

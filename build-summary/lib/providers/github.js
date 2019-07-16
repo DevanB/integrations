@@ -38,7 +38,12 @@ module.exports = {
   },
   async getUser(client) {
     const { data: user } = await client.users.getAuthenticated()
-    return user
+    if (!user) return null
+    return {
+      id: user.id,
+      username: user.login,
+      avatar: user.avatar_url
+    }
   },
   async getPull(client, { meta }) {
     const {

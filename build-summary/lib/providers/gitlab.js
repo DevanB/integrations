@@ -47,7 +47,12 @@ module.exports = {
   },
   async getUser(client) {
     const user = await client.Users.current()
-    return user
+    if (!user) return null
+    return {
+      id: user.id,
+      username: user.username,
+      avatar: user.avatar_url
+    }
   },
   async getPull(client, { meta }) {
     const [pull] = await client.MergeRequests.all({
