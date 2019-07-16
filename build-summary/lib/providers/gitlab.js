@@ -41,7 +41,7 @@ module.exports = {
   },
 
   // GITLAB API BRIDGE
-  createClient(token) {
+  async createClient(token) {
     const client = new Gitlab({ oauthToken: token })
     return client
   },

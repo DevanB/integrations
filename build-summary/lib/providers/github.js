@@ -33,8 +33,17 @@ module.exports = {
   },
 
   // GITHUB API BRIDGE
-  createClient(token) {
-    return Octokit({ auth: token })
+  async createClient(token) {
+    const client = Octokit({ auth: token })
+
+    // if the token is not valid anymore (user did revoke)
+    // we return a null client
+    const res = await fetch('https://api.github.com/user', {
+      headers: { authorization: `token ${token}` }
+    })
+    if (res.status === 401 || res.status === 403) return null
+
+    return client
   },
   async getUser(client) {
     const { data: user } = await client.users.getAuthenticated()

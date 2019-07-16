@@ -84,6 +84,14 @@ module.exports = async (req, res) => {
   // get pull request associated to commit
   const strategy = getStrategy(provider)
   const providerClient = strategy.createClient(providerToken)
+
+  // client is null if the token has been revoked or is not valid
+  if (!providerClient) {
+    await store.updateOne({ ownerId }, { [`${provider}Token`]: '' })
+    console.log(`ignoring event: ${provider}Token revoked by user or not valid`)
+    return res.send()
+  }
+
   const pull = await strategy.getPull(providerClient, { meta })
 
   if (!pull) {

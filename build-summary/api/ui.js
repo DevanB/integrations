@@ -20,10 +20,18 @@ module.exports = withUiHook(async ({ payload }) => {
     strategies.map(async ({ provider, strategy }) => {
       const token = record[provider + 'Token']
       let user
+
       if (token) {
-        const client = strategy.createClient(token)
-        user = await strategy.getUser(client)
+        const client = await strategy.createClient(token)
+
+        // client is null if the token has been revoked
+        if (!client) {
+          await store.updateOne({ ownerId }, { [`${provider}Token`]: '' })
+        } else {
+          user = await strategy.getUser(client)
+        }
       }
+
       return { provider, token, user, strategy }
     })
   )
