@@ -127,7 +127,7 @@ module.exports = async (req, res) => {
       {}
     )
     if (alias.length > 0) {
-      aliasUrl = `https://${aliases.pop()}`
+      aliasUrl = `https://${alias.pop()}`
     }
   } catch (err) {
     console.warn('warning, error while fetching alias', err)
@@ -145,7 +145,9 @@ module.exports = async (req, res) => {
       routeLink: `${aliasUrl || deploymentUrl}${route}`
     }
   })
-  await store.insertMany(screenshots)
+  if (screenshots.length > 0) {
+    await store.insertMany(screenshots)
+  }
 
   const otherRoutes = routes.slice(max).map(route => ({
     route,
