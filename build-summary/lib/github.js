@@ -43,13 +43,25 @@ const getPulls = async (githubClient, { org, repo, head }) => {
 }
 
 const getDiff = async (githubClient, { org, repo, base, head }) => {
-  const { data: diff } = await githubClient.repos.compareCommits({
+  const { data: comparison } = await githubClient.repos.compareCommits({
     owner: org,
     repo,
     base,
     head
   })
-  return diff.files.map(file => file.filename)
+
+  const deleted = []
+  const modified = []
+
+  for (let file of comparison.files) {
+    if (file.status === 'removed') {
+      deleted.push(file.filename)
+    } else {
+      modified.push(file.filename)
+    }
+  }
+
+  return { deleted, modified }
 }
 
 const upsertComment = async (githubClient, { org, repo, pull, body }) => {

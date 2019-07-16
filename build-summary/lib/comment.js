@@ -7,7 +7,13 @@ const escapeLinkTitle = txt => {
   return txt.replace(/\[/g, '\\[').replace(/\]/g, '\\]')
 }
 
-const createComment = ({ commitSha, url, screenshots, rest = [] }) => {
+const createComment = ({
+  commitSha,
+  url,
+  screenshots,
+  otherRoutes = [],
+  deletedRoutes = []
+}) => {
   // group by screenshots by 3
   const grouped = screenshots.reduce((pv, cv, i) => {
     const j = Math.floor(i / 2)
@@ -38,14 +44,26 @@ ${grouped.map(
 
 `
 )}
+
 ${
-  rest.length > 0
-    ? `And ${rest.length} other route${rest.length === 1 ? '' : 's'}:
-${rest
+  otherRoutes.length > 0
+    ? `And ${otherRoutes.length} other route${
+        otherRoutes.length === 1 ? '' : 's'
+      }:
+${otherRoutes
   .map(
     ({ route, routeLink }) => `- [**${escapeLinkTitle(route)}**](${routeLink})`
   )
   .join('\n')}`
+    : ''
+}
+
+${
+  deletedRoutes.length > 0
+    ? `And ${deletedRoutes.length} deleted route${
+        deletedRoutes.length === 1 ? '' : 's'
+      }:
+${deletedRoutes.map(route => `- **${route}**`).join('\n')}`
     : ''
 }
 

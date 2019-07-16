@@ -109,10 +109,11 @@ module.exports = async (req, res) => {
     head: `${commitOrg}:${commitSha}`
   })
 
-  const routes = diff.map(framework.routes || (x => x)).filter(Boolean)
+  const routes = diff.modified.map(framework.routes).filter(Boolean)
+  const deletedRoutes = diff.deleted.map(framework.routes).filter(Boolean)
 
-  if (routes.length === 0) {
-    console.log(`ignoring event: no changed page`)
+  if (routes.length === 0 && deletedRoutes.length === 0) {
+    console.log(`ignoring event: no changed route`)
     return res.send()
   }
 
@@ -146,7 +147,7 @@ module.exports = async (req, res) => {
   })
   await store.insertMany(screenshots)
 
-  const rest = routes.slice(max).map(route => ({
+  const otherRoutes = routes.slice(max).map(route => ({
     route,
     routeLink: `${aliasUrl || deploymentUrl}${route}`
   }))
@@ -156,7 +157,8 @@ module.exports = async (req, res) => {
     commitSha,
     url: aliasUrl || deploymentUrl,
     screenshots,
-    rest
+    otherRoutes,
+    deletedRoutes
   })
   await upsertComment(githubClient, { org, repo, pull, body: comment })
 
