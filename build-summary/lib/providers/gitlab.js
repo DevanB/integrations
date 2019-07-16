@@ -6,7 +6,7 @@ module.exports = {
   // OAUTH FLOW
   getAuthorizeEndpoint() {
     return (
-      'https://gitlab.com/oauth/authorize' +
+      'https://gitlab.com/oauth/authorize?' +
       qs.stringify({
         client_id: process.env.GITLAB_CLIENT_ID,
         response_type: 'code',
