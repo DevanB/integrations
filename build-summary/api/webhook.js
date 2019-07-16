@@ -1,47 +1,52 @@
 const { getStore } = require('../lib/mongo')
 const nanoid = require('nanoid')
 const { createComment } = require('../lib/comment')
-const {
-  upsertComment,
-  createGithubClient,
-  getPulls,
-  getDiff
-} = require('../lib/github')
 const { ZeitClient } = require('@zeit/integration-utils')
 const frameworks = require('../lib/frameworks')
+const getStrategy = require('../lib/strategy')
 
 module.exports = async (req, res) => {
   const event = req.body
-
   const { type, ownerId, teamId, payload } = event
 
+  // not a deployment-ready event
   if (type !== 'deployment-ready') {
     return res.send()
   }
 
-  const isGithub = !!event.payload.deployment.meta.githubDeployment
+  const { meta } = payload.deployment
 
-  if (!isGithub) {
+  let provider
+  if (meta.githubDeployment) {
+    provider = 'github'
+  } else if (meta.gitlabDeployment) {
+    provider = 'gitlab'
+  }
+
+  // not a "git" deployment
+  if (!provider) {
     return res.send()
   }
 
   console.log(JSON.stringify(event, null, 2))
 
   const {
-    githubOrg: org,
-    githubRepo: repo,
-    githubCommitSha: commitSha,
-    githubCommitOrg: commitOrg,
-    githubCommitRef: commitRef
-  } = payload.deployment.meta
+    [provider + 'Org']: org,
+    [provider + 'Repo']: repo,
+    [provider + 'CommitSha']: commitSha,
+    [provider + 'CommitOrg']: commitOrg,
+    [provider + 'CommitRef']: commitRef
+  } = meta
   console.log('deployment ready', { ownerId, repo, org, commitSha })
 
   // retrieve zeit token and github token
   const store = await getStore()
-  const { token, githubToken } = await store.findOne({ ownerId })
+  const { token, [provider + 'Token']: providerToken } = await store.findOne({
+    ownerId
+  })
 
-  if (!token || !githubToken) {
-    console.log(`ignoring event: ${ownerId} does not have a github token`)
+  if (!token || !providerToken) {
+    console.log(`ignoring event: ${ownerId} does not have a ${provider}Token`)
     return res.send()
   }
 
@@ -90,8 +95,9 @@ module.exports = async (req, res) => {
   }
 
   // get pull request associated to commit
-  const githubClient = createGithubClient(githubToken)
-  const [pull] = await getPulls(githubClient, {
+  const strategy = getStrategy(provider)
+  const providerClient = strategy.createClient(providerToken)
+  const pull = await strategy.getPull(providerClient, {
     org,
     repo,
     head: `${commitOrg}:${commitRef}`
@@ -102,10 +108,10 @@ module.exports = async (req, res) => {
     return res.send()
   }
 
-  const diff = await getDiff(githubClient, {
+  const diff = await strategy.getDiff(providerClient, {
     org,
     repo,
-    base: pull.base.ref,
+    base: pull.base,
     head: `${commitOrg}:${commitSha}`
   })
 
@@ -162,7 +168,12 @@ module.exports = async (req, res) => {
     otherRoutes,
     deletedRoutes
   })
-  await upsertComment(githubClient, { org, repo, pull, body: comment })
+  await strategy.upsertComment(providerClient, {
+    org,
+    repo,
+    pullId: pull.id,
+    body: comment
+  })
 
   return res.send()
 }

@@ -22,28 +22,30 @@ const createComment = ({
   }, [])
 
   return `#### 📝Changed routes:
-${grouped.map(
-  group => `
+${grouped
+  .map(
+    group => `
 
 |${group
-    .map(
-      ({ routeLink, route }) =>
-        ` [${escapeLinkTitle(ellipsis(route))}](${routeLink}) |`
-    )
-    .join('')}
+      .map(
+        ({ routeLink, route }) =>
+          ` [${escapeLinkTitle(ellipsis(route))}](${routeLink}) |`
+      )
+      .join('')}
 |${':-:|'.repeat(group.length)}
 |${group
-    .map(
-      ({ routeLink, route, screenshotUrl }) =>
-        `<a href="${routeLink}"><img src="${screenshotUrl}" alt="Screenshot of ${route}" width="300"></a>` +
-        '<br />' +
-        `<sup><a href="${screenshotUrl}&fullPage=true">(view full size)</a>` +
-        ' |'
-    )
-    .join('')}
+      .map(
+        ({ routeLink, route, screenshotUrl }) =>
+          `<a href="${routeLink}"><img src="${screenshotUrl}" alt="Screenshot of ${route}" width="300"></a>` +
+          '<br />' +
+          `<sup><a href="${screenshotUrl}&fullPage=true">(view full size)</a>` +
+          ' |'
+      )
+      .join('')}
 
 `
-)}
+  )
+  .join('')}
 
 ${
   otherRoutes.length > 0
