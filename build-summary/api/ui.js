@@ -31,7 +31,7 @@ module.exports = withUiHook(async ({ payload }) => {
   const connected = connections.filter(c => c.user)
   const disconnected = connections.filter(c => !c.user)
 
-  const connectUi = provider => htm`
+  const connectUi = ({ provider }) => htm`
     <Box marginTop="15px" justifyContent="center">
       <Link href=${process.env.INTEGRATION_URL +
         '/api/connect?' +
