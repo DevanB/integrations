@@ -83,7 +83,7 @@ module.exports = async (req, res) => {
 
   // get pull request associated to commit
   const strategy = getStrategy(provider)
-  const providerClient = strategy.createClient(providerToken)
+  const providerClient = await strategy.createClient(providerToken)
 
   // client is null if the token has been revoked or is not valid
   if (!providerClient) {
