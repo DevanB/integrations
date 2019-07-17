@@ -16,7 +16,7 @@ const tests = [
       'pages/about/us.ts',
       'pages/blog/[id].js'
     ],
-    routes: ['/', '/test', '/doc', '/about', '/about/us', 'blog/[id]']
+    routes: ['/', '/test', '/doc', '/about', '/about/us', '/blog/[id]']
   },
   {
     name: 'gatsby',
