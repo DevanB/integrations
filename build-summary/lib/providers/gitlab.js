@@ -43,6 +43,14 @@ module.exports = {
   // GITLAB API BRIDGE
   async createClient(token) {
     const client = new Gitlab({ oauthToken: token })
+
+    // if the token is not valid anymore (user did revoke)
+    // we return a null client
+    const res = await fetch('https://gitlab.com/api/user', {
+      headers: { authorization: `Bearer ${token}` }
+    })
+    if (res.status === 401 || res.status === 403) return null
+
     return client
   },
   async getUser(client) {
