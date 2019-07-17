@@ -22,7 +22,7 @@ module.exports = [
     dependency: 'next',
     routes: path => {
       const route = fsRoutes('pages')(path)
-      if (route === '_app' || route === '_document') {
+      if (route === '/_app' || route === '/_document') {
         return false
       }
       return route
@@ -54,7 +54,7 @@ module.exports = [
     dependency: 'umi',
     routes: path => {
       const route = fsRoutes('pages')(path)
-      if (route === 'document') {
+      if (route === '/document') {
         return false
       }
       return route
