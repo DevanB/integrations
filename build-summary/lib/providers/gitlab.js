@@ -48,13 +48,12 @@ module.exports = {
     // we return a null client
     try {
       await client.Users.current()
+      return client
     } catch (error) {
       if (error.response && [401, 403].includes(error.response.status))
         return null
       throw error
     }
-
-    return client
   },
   async getUser(client) {
     const user = await client.Users.current()

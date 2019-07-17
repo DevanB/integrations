@@ -38,12 +38,13 @@ module.exports = {
 
     // if the token is not valid anymore (user did revoke)
     // we return a null client
-    const res = await fetch('https://api.github.com/user', {
-      headers: { authorization: `token ${token}` }
-    })
-    if (res.status === 401 || res.status === 403) return null
-
-    return client
+    try {
+      await client.users.getAuthenticated()
+      return client
+    } catch (error) {
+      if (error.status && [401, 403].includes(error.status)) return null
+      throw error
+    }
   },
   async getUser(client) {
     const { data: user } = await client.users.getAuthenticated()
