@@ -23,5 +23,9 @@ module.exports = [
   {
     dependency: 'gatsby',
     routes: fsRoutes('src/pages')
+  },
+  {
+    dependency: 'nuxt',
+    routes: fsRoutes('pages')
   }
 ]
