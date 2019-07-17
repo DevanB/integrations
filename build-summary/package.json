@@ -1,5 +1,8 @@
 {
   "name": "build-summary",
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
     "@octokit/rest": "16.28.2",
     "@zeit/fetch": "5.1.0",
@@ -17,6 +20,7 @@
     "babel-eslint": "^10.0.2",
     "eslint": "^6.0.1",
     "eslint-config-prettier": "^6.0.0",
+    "jest": "^24.8.0",
     "prettier": "^1.18.2"
   },
   "prettier": {
@@ -27,7 +31,8 @@
     "parser": "babel-eslint",
     "env": {
       "node": true,
-      "es6": true
+      "es6": true,
+      "jest": true
     },
     "extends": [
       "eslint:recommended",
