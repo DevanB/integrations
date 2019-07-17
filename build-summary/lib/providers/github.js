@@ -110,7 +110,7 @@ module.exports = {
       await client.issues.updateComment({
         owner: meta.githubOrg,
         repo: meta.githubRepo,
-        comment_id: comment.number,
+        comment_id: comment.id,
         body
       })
     }
