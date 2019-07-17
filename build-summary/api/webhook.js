@@ -87,7 +87,7 @@ module.exports = async (req, res) => {
 
   // client is null if the token has been revoked or is not valid
   if (!providerClient) {
-    await store.updateOne({ ownerId }, { [`${provider}Token`]: '' })
+    await store.updateOne({ ownerId }, { $unset: { [`${provider}Token`]: '' } })
     console.log(`ignoring event: ${provider}Token revoked by user or not valid`)
     return res.send()
   }

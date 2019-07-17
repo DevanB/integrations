@@ -26,7 +26,10 @@ module.exports = withUiHook(async ({ payload }) => {
 
         // client is null if the token has been revoked
         if (!client) {
-          await store.updateOne({ ownerId }, { [`${provider}Token`]: '' })
+          await store.updateOne(
+            { ownerId },
+            { $unset: { [`${provider}Token`]: '' } }
+          )
         } else {
           user = await strategy.getUser(client)
         }
