@@ -49,5 +49,15 @@ module.exports = [
   {
     dependency: 'sapper',
     routes: fsRoutes('src/routes')
+  },
+  {
+    dependency: 'umi',
+    routes: path => {
+      const route = fsRoutes('pages')(path)
+      if (route === 'document') {
+        return false
+      }
+      return route
+    }
   }
 ]
