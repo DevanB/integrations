@@ -27,5 +27,9 @@ module.exports = [
   {
     dependency: 'nuxt',
     routes: fsRoutes('pages')
+  },
+  {
+    dependency: 'gridsome',
+    routes: fsRoutes('src/pages')
   }
 ]
