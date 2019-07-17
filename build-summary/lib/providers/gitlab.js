@@ -46,10 +46,13 @@ module.exports = {
 
     // if the token is not valid anymore (user did revoke)
     // we return a null client
-    const res = await fetch('https://gitlab.com/api/user', {
-      headers: { authorization: `Bearer ${token}` }
-    })
-    if (res.status === 401 || res.status === 403) return null
+    try {
+      await client.Users.current()
+    } catch (error) {
+      if (error.response && [401, 403].includes(error.response.status))
+        return null
+      throw error
+    }
 
     return client
   },
