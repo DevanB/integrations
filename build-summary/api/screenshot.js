@@ -36,7 +36,7 @@ const getPage = async () => {
     const newPage = async () => {
       const options = await getOptions()
       const browser = await puppeteer.launch(options)
-      const page = browser.newPage()
+      const page = await browser.newPage()
 
       // set default fonts
       const client = await page.target().createCDPSession()
