@@ -1,17 +1,31 @@
 const changeCase = require('change-case')
 
-const fsRoutes = dir => path => {
-  if (!path.startsWith(dir)) {
+const fsRoutes = ({
+  baseDir = '',
+  fileExtension,
+  filter,
+  transform
+}) => path => {
+  // filter out files out of baseDir
+  if (!path.startsWith(baseDir)) return false
+
+  // filter out wrong extension
+  if (fileExtension && path.split('.').slice(-1)[0] !== fileExtension)
     return false
-  }
 
   path = path
-    .slice(dir.length) // /src/pages/ -> /
+    .slice(baseDir.length) // strip baseDir
     .replace(/\.[a-z]+$/, '') // strip .js, .ts, ...
-    .replace(/index$/i, '') // strip index
+    .replace(/\/?index$/i, '') // strip index
 
-  if (path !== '/' && path[path.length - 1] === '/') {
-    path = path.slice(0, path.length - 1)
+  path = `/${path}`
+
+  if (typeof filter === 'function' && filter(path)) return false
+
+  if (Array.isArray(filter) && filter.includes(path)) return false
+
+  if (transform) {
+    path = transform(path)
   }
 
   return path
@@ -20,44 +34,36 @@ const fsRoutes = dir => path => {
 module.exports = [
   {
     dependency: 'next',
-    routes: path => {
-      const route = fsRoutes('pages')(path)
-      if (route === '/_app' || route === '/_document') {
-        return false
-      }
-      return route
-    }
+    routes: fsRoutes({
+      baseDir: 'pages/',
+      filter: ['/_app', '/_document']
+    })
   },
   {
     dependency: 'gatsby',
-    routes: fsRoutes('src/pages')
+    routes: fsRoutes({ baseDir: 'src/pages/' })
   },
   {
     dependency: 'nuxt',
-    routes: fsRoutes('pages')
+    routes: fsRoutes({ baseDir: 'pages/' })
   },
   {
     dependency: 'gridsome',
-    routes: path => {
-      const route = fsRoutes('src/pages')(path)
-      return route
-        .split('/')
-        .map(changeCase.paramCase)
-        .join('/')
-    }
+    routes: fsRoutes({
+      baseDir: 'src/pages/',
+      transform: route =>
+        route
+          .split('/')
+          .map(changeCase.paramCase)
+          .join('/')
+    })
   },
   {
     dependency: 'sapper',
-    routes: fsRoutes('src/routes')
+    routes: fsRoutes({ baseDir: 'src/routes/' })
   },
   {
     dependency: 'umi',
-    routes: path => {
-      const route = fsRoutes('pages')(path)
-      if (route === '/document') {
-        return false
-      }
-      return route
-    }
+    routes: fsRoutes({ baseDir: 'src/routes/', filter: ['/document'] })
   }
 ]

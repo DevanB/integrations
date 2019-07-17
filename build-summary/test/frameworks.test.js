@@ -31,12 +31,12 @@ const tests = [
   },
   {
     name: 'nuxt',
-    packageJson: { dependencies: { gatsby: '*' } },
+    packageJson: { dependencies: { nuxt: '*' } },
     paths: [
       'package.json',
       'components/button.js',
-      'src/pages/index.js',
-      'src/pages/about/index.mdx'
+      'pages/index.js',
+      'pages/about/index.mdx'
     ],
     routes: ['/', '/about']
   }
