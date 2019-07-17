@@ -5,6 +5,8 @@ const tests = [
     name: 'next',
     packageJson: { dependencies: { next: '*' } },
     paths: [
+      'pages/_app.js',
+      'pages/_document.js',
       'components/button.js',
       'pages/index.js',
       'pages/test.js',
