@@ -4,6 +4,7 @@ const { createComment } = require('../lib/comment')
 const { ZeitClient } = require('@zeit/integration-utils')
 const frameworks = require('../lib/frameworks')
 const getStrategy = require('../lib/strategy')
+const fetch = require('../lib/fetch')
 
 module.exports = async (req, res) => {
   const event = req.body
@@ -11,6 +12,9 @@ module.exports = async (req, res) => {
 
   // not a deployment-ready event
   if (type !== 'deployment-ready') return res.send()
+
+  // log event
+  console.log(JSON.stringify(event, null, 2))
 
   const { meta } = payload.deployment
 
@@ -23,8 +27,6 @@ module.exports = async (req, res) => {
 
   // not a "git" deployment
   if (!provider) return res.send()
-
-  console.log(JSON.stringify(event, null, 2))
 
   // retrieve zeit token and provider token from store
   const store = await getStore()
@@ -140,6 +142,20 @@ module.exports = async (req, res) => {
   if (screenshots.length > 0) {
     await store.insertMany(screenshots)
   }
+
+  console.log('caching screenshots')
+  const startScreenshotCalls = process.hrtime()
+  await Promise.all(
+    screenshots.map(async screenshot => {
+      try {
+        await fetch(screenshot.screenshotUrl, { timeout: 100 })
+      } catch (err) {
+        // ignore error, we just want to populate the cache
+      }
+    })
+  )
+  const endScreenshotCalls = process.hrtime(startScreenshotCalls)
+  console.log('caching screenshots took %dms', endScreenshotCalls[1] / 1000000)
 
   const otherRoutes = routes.slice(max).map(route => ({
     route,
