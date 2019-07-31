@@ -1,10 +1,20 @@
 const { getStore } = require('../lib/mongo')
-const nanoid = require('nanoid')
 const { createComment } = require('../lib/comment')
 const { ZeitClient } = require('@zeit/integration-utils')
 const frameworks = require('../lib/frameworks')
 const getStrategy = require('../lib/strategy')
-const fetch = require('../lib/fetch')
+const mql = require('@microlink/mql')
+
+const MAX_SCREENSHOTS = 6
+
+const takeScreenshot = async url => {
+  const { data } = await mql(url, {
+    screenshot: true,
+    disableAnimations: true
+  })
+
+  return data.screenshot.url
+}
 
 module.exports = async (req, res) => {
   const event = req.body
@@ -128,41 +138,26 @@ module.exports = async (req, res) => {
   }
 
   console.log('creating screenshots...')
-  const max = 6
-  const screenshots = routes.slice(0, max).map(route => {
-    const screenshotId = nanoid()
-    return {
-      screenshotId,
-      screenshotUrl: `${process.env.INTEGRATION_URL}/api/screenshot?screenshotId=${screenshotId}`,
-      route,
-      routeUrl: `${deploymentUrl}${route}`,
-      routeLink: `${aliasUrl || deploymentUrl}${route}`
-    }
-  })
-  if (screenshots.length > 0) {
-    await store.insertMany(screenshots)
-  }
 
-  console.log('caching screenshots')
-  const startScreenshotCalls = process.hrtime()
-  await Promise.all(
-    screenshots.map(async screenshot => {
-      try {
-        await fetch(screenshot.screenshotUrl, { timeout: 100 })
-      } catch (err) {
-        // ignore error, we just want to populate the cache
+  const screenshots = await Promise.all(
+    routes.slice(0, MAX_SCREENSHOTS).map(async route => {
+      const url = `${deploymentUrl}${route}`
+
+      return {
+        route,
+        routeLink: `${aliasUrl || deploymentUrl}${route}`,
+        screenshotUrl: await takeScreenshot(url)
       }
     })
   )
-  const endScreenshotCalls = process.hrtime(startScreenshotCalls)
-  console.log('caching screenshots took %dms', endScreenshotCalls[1] / 1000000)
 
-  const otherRoutes = routes.slice(max).map(route => ({
+  const otherRoutes = routes.slice(MAX_SCREENSHOTS).map(route => ({
     route,
     routeLink: `${aliasUrl || deploymentUrl}${route}`
   }))
 
   console.log('writing PR comment...')
+
   const comment = createComment({
     commitSha: strategy.getCommitShaFromMeta(meta),
     url: aliasUrl || deploymentUrl,
@@ -170,6 +165,7 @@ module.exports = async (req, res) => {
     otherRoutes,
     deletedRoutes
   })
+
   await strategy.upsertComment(providerClient, { meta, pull, body: comment })
 
   return res.send()
