@@ -9,13 +9,10 @@
     "@zeit/fetch": "5.1.0",
     "@zeit/integration-utils": "0.6.4",
     "change-case": "3.1.0",
-    "chrome-aws-lambda": "1.18.1",
     "cookie": "0.4.0",
     "gitlab": "10.0.0",
     "mongodb": "3.2.7",
-    "nanoid": "2.0.3",
-    "node-fetch": "2.6.0",
-    "puppeteer-core": "1.18.1"
+    "node-fetch": "2.6.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.2",
