@@ -1,76 +1,19 @@
 const { getStore } = require('../lib/mongo')
-const puppeteer = require('puppeteer-core')
-const chrome = require('chrome-aws-lambda')
+const mql = require('@microlink/mql')
+const got = require('got')
 
-const isDev = process.env.NOW_REGION === 'dev1'
-
-const getOptions = async () => {
-  if (isDev) {
-    return {
-      args: [],
-      executablePath:
-        process.platform === 'win32'
-          ? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
-          : '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-      headless: true
-    }
-  }
-
-  await Promise.all([
-    chrome.font('https://interttf-7l5in8j2v.zeit.sh/Inter-Regular.ttf'),
-    chrome.font('https://interttf-7l5in8j2v.zeit.sh/Inter-Bold.ttf'),
-    chrome.font('https://interttf-7l5in8j2v.zeit.sh/Inter-Medium.ttf')
-  ])
+const getScreenshot = async (url, opts = {}) => {
+  const { response, data } = await mql(url, {
+    width: 1280,
+    height: 800,
+    screenshot: true,
+    ...opts
+  })
 
   return {
-    args: chrome.args,
-    executablePath: await chrome.executablePath,
-    headless: chrome.headless
+    screenshotUrl: data.screenshot.url,
+    headers: response.headers
   }
-}
-
-let pagePromise
-
-const getPage = async () => {
-  if (!pagePromise) {
-    const newPage = async () => {
-      const options = await getOptions()
-      const browser = await puppeteer.launch(options)
-      const page = await browser.newPage()
-
-      // set default fonts
-      const client = await page.target().createCDPSession()
-      await client.send('Page.enable')
-      await client.send('Page.setFontFamilies', {
-        fontFamilies: {
-          standard: 'Inter',
-          fixed: 'Inter',
-          sansSerif: 'Inter'
-        }
-      })
-
-      // accelerate animations
-      await client.send('Animation.enable')
-      await client.send('Animation.setPlaybackRate', { playbackRate: 20 })
-
-      // set timeout to 15s for `page.goto()`
-      page.setDefaultTimeout(15000)
-
-      return page
-    }
-
-    pagePromise = newPage()
-  }
-
-  return pagePromise
-}
-
-const getScreenshot = async (url, { fullPage = false } = {}) => {
-  const page = await getPage()
-
-  await page.setViewport({ width: 1280, height: 800 })
-  await page.goto(url)
-  return page.screenshot({ fullPage })
 }
 
 module.exports = async (req, res) => {
@@ -88,10 +31,12 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const file = await getScreenshot(screenshot.routeUrl, { fullPage })
-    res.setHeader('content-type', 'image/png')
-    res.setHeader('cache-control', 'immutable,max-age=31536000')
-    return res.status(200).send(file)
+    const { screenshotUrl, headers } = await getScreenshot(
+      screenshot.routeUrl,
+      { fullPage }
+    )
+    res.setHeader('cache-control', headers['cache-control'])
+    return got.stream(screenshotUrl).pipe(res)
   } catch (err) {
     console.log(`failed to screenshot ${screenshot.routeUrl}`)
     console.error(err)
