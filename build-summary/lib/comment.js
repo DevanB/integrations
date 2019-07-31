@@ -1,5 +1,5 @@
 const MAX_WIDTH = 300
-const MAX_HEIGHT = 200
+const MAX_HEIGHT = 187.5
 
 // See https://docs.imagekit.io/#commonly-used
 const THUMBNAIL_TRANSFORMATIONS = `tr=w-${MAX_WIDTH},h-${MAX_HEIGHT},fo-top`

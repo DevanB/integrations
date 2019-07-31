@@ -11,6 +11,7 @@ const takeScreenshot = async url => {
   const { data } = await mql(url, {
     screenshot: true,
     fullPage: true,
+    force: true,
     disableAnimations: true
   })
 
