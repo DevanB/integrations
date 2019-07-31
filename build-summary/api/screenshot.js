@@ -1,6 +1,5 @@
 const { getStore } = require('../lib/mongo')
 const mql = require('@microlink/mql')
-const got = require('got')
 
 const getScreenshot = async (url, opts = {}) => {
   const { response, data } = await mql(url, {
@@ -36,7 +35,7 @@ module.exports = async (req, res) => {
       { fullPage }
     )
     res.setHeader('cache-control', headers['cache-control'])
-    return got.stream(screenshotUrl).pipe(res)
+    return mql.stream(screenshotUrl).pipe(res)
   } catch (err) {
     console.log(`failed to screenshot ${screenshot.routeUrl}`)
     console.error(err)
