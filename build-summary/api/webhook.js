@@ -10,6 +10,7 @@ const MAX_SCREENSHOTS = 6
 const takeScreenshot = async url => {
   const { data } = await mql(url, {
     screenshot: true,
+    fullPage: true,
     disableAnimations: true
   })
 
