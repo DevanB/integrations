@@ -7,11 +7,10 @@ const mql = require('@microlink/mql')
 
 const MAX_SCREENSHOTS = 6
 
-const takeScreenshot = async (url, opts) => {
+const takeScreenshot = async url => {
   const { data } = await mql(url, {
     screenshot: true,
-    disableAnimations: true,
-    ...opts
+    disableAnimations: true
   })
 
   return data.screenshot.url
@@ -147,7 +146,7 @@ module.exports = async (req, res) => {
       return {
         route,
         routeLink: `${aliasUrl || deploymentUrl}${route}`,
-        screenshotUrl: await takeScreenshot(url, req.query)
+        screenshotUrl: await takeScreenshot(url)
       }
     })
   )
