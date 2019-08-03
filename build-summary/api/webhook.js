@@ -9,6 +9,7 @@ const MAX_SCREENSHOTS = 6
 
 const takeScreenshot = async url => {
   const { data } = await mql(url, {
+    endpoint: 'https://proxy-microlink.zeit.sh',
     screenshot: true,
     fullPage: true,
     force: true,
