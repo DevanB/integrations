@@ -1,7 +1,8 @@
 {
   "name": "build-summary",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "mkdir -p public && touch public/index.html"
   },
   "dependencies": {
     "@microlink/mql": "0.3.15",
