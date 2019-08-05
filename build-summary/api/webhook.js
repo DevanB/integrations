@@ -7,13 +7,15 @@ const mql = require('@microlink/mql')
 
 const MAX_SCREENSHOTS = 6
 
+const { MICROLINK_API_KEY } = process.env
+
 const takeScreenshot = async url => {
   const { data } = await mql(url, {
-    endpoint: 'https://proxy-microlink.zeit.sh',
-    screenshot: true,
-    fullPage: true,
+    apiKey: MICROLINK_API_KEY,
+    disableAnimations: true,
     force: true,
-    disableAnimations: true
+    fullPage: true,
+    screenshot: true
   })
 
   return data.screenshot.url
