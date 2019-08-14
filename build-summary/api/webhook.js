@@ -15,7 +15,8 @@ const takeScreenshot = async url => {
     disableAnimations: true,
     force: true,
     fullPage: true,
-    screenshot: true
+    screenshot: true,
+    meta: false
   })
 
   return data.screenshot.url
