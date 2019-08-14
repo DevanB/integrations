@@ -42,8 +42,8 @@ ${grouped
 |${':-:|'.repeat(group.length)}
 |${group
     .map(
-      ({ routeLink, route, screenshotUrl }) =>
-        `<a href="${routeLink}"><img src="${screenshotUrl}?${THUMBNAIL_TRANSFORMATIONS}" alt="Screenshot of ${route}" width="${MAX_WIDTH}"></a>` +
+      ({ routeLink, route, thumbnailUrl, screenshotUrl }) =>
+        `<a href="${routeLink}"><img src="${thumbnailUrl}?${THUMBNAIL_TRANSFORMATIONS}" alt="Screenshot of ${route}" width="${MAX_WIDTH}"></a>` +
             '<br />' +
             `<sup><a href="${screenshotUrl}">(view full size)</a>` +
             ' |'

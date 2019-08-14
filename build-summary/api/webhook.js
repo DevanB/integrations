@@ -9,14 +9,14 @@ const MAX_SCREENSHOTS = 6
 
 const { MICROLINK_API_KEY } = process.env
 
-const takeScreenshot = async url => {
+const takeScreenshot = async (url, opts = {}) => {
   const { data } = await mql(url, {
     apiKey: MICROLINK_API_KEY,
     disableAnimations: true,
     force: true,
-    fullPage: true,
     screenshot: true,
-    meta: false
+    meta: false,
+    ...opts
   })
 
   return data.screenshot.url
@@ -149,10 +149,16 @@ module.exports = async (req, res) => {
     routes.slice(0, MAX_SCREENSHOTS).map(async route => {
       const url = `${deploymentUrl}${route}`
 
+      const [thumbnailUrl,  screenshotUrl] = await Promise.all([
+        takeScreenshot(url),
+        takeScreenshot(url, { fullPage: true })
+      ])
+
       return {
         route,
         routeLink: `${aliasUrl || deploymentUrl}${route}`,
-        screenshotUrl: await takeScreenshot(url)
+        thumbnailUrl,
+        screenshotUrl
       }
     })
   )
